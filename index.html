@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Fight Night — Exhibición de Boxeo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#060606;color:#fff;font-family:'Barlow Condensed',sans-serif;min-height:100vh;overflow-x:hidden}
+input,button{font-family:inherit}
+a{text-decoration:none;color:inherit}
+
+/* ── VIEWS ── */
+.view{display:none}
+.view.active{display:block}
+
+/* ══════════════════ HOME ══════════════════ */
+#view-home{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;overflow:hidden;background:#060606}
+.home-glow-r{position:absolute;left:-5%;top:0;width:50%;height:100%;background:radial-gradient(ellipse at left center,rgba(200,20,20,.13) 0%,transparent 65%);pointer-events:none}
+.home-glow-b{position:absolute;right:-5%;top:0;width:50%;height:100%;background:radial-gradient(ellipse at right center,rgba(20,60,220,.13) 0%,transparent 65%);pointer-events:none}
+.home-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px;max-width:720px;width:100%;text-align:center}
+.home-gloves{font-size:52px}
+.home-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,12vw,100px);letter-spacing:.1em;line-height:1;text-shadow:0 0 60px rgba(255,30,30,.35)}
+.home-sub{font-size:13px;font-weight:400;letter-spacing:.18em;color:rgba(255,255,255,.4);text-transform:uppercase}
+.home-cards{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;width:100%}
+.hcard{display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 24px;border-radius:6px;cursor:pointer;transition:transform .2s;min-width:160px;flex:1;-webkit-tap-highlight-color:transparent}
+.hcard:hover{transform:translateY(-4px)}
+.hcard-display{background:linear-gradient(145deg,#181818,#1e1e1e);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.hcard-admin{background:linear-gradient(145deg,#0d1a0d,#122012);border:1px solid rgba(80,200,80,.15);box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.hcard-remote{background:linear-gradient(145deg,#0d0d1e,#12122a);border:1px solid rgba(80,100,255,.15);box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.hcard-icon{font-size:32px}
+.hcard-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.12em}
+.hcard-desc{font-size:12px;font-weight:400;color:rgba(255,255,255,.4);letter-spacing:.05em;line-height:1.4;text-align:center}
+.home-tip{font-size:12px;color:rgba(255,255,255,.2);letter-spacing:.06em;margin-top:8px;line-height:1.6}
+.home-tip code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px;color:rgba(255,255,255,.4)}
+
+/* ══════════════════ DISPLAY ══════════════════ */
+#view-display{width:100vw;height:100vh;background:#050505;display:none;flex-direction:column;overflow:hidden;position:relative}
+#view-display.active{display:flex}
+.dsp-bg-r{position:absolute;left:-8%;top:0;bottom:0;width:50%;background:radial-gradient(ellipse at 20% 50%,rgba(210,20,20,.2) 0%,transparent 65%);pointer-events:none}
+.dsp-bg-b{position:absolute;right:-8%;top:0;bottom:0;width:50%;background:radial-gradient(ellipse at 80% 50%,rgba(20,60,220,.2) 0%,transparent 65%);pointer-events:none}
+.dsp-idle{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px}
+.dsp-idle-icon{font-size:72px;opacity:.2}
+.dsp-idle-t{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,10vw,120px);letter-spacing:.12em;color:rgba(255,255,255,.15)}
+.dsp-idle-s{font-size:14px;letter-spacing:.15em;color:rgba(255,255,255,.2);text-transform:uppercase}
+.dsp-badge{position:relative;z-index:1;text-align:center;padding:clamp(14px,2.5vh,30px) 0 clamp(6px,1vh,14px);font-size:clamp(13px,1.8vw,22px);font-weight:600;letter-spacing:.3em;color:rgba(255,255,255,.5);text-transform:uppercase}
+.dsp-badge-n{color:rgba(255,255,255,.85)}
+.dsp-badge-of{color:rgba(255,255,255,.3)}
+.dsp-main{position:relative;z-index:1;display:flex;flex:1;align-items:center;justify-content:center;padding:0 clamp(16px,4vw,60px)}
+.dsp-corner{flex:1;display:flex;flex-direction:column;gap:clamp(4px,.8vh,10px)}
+.dsp-corner-r{align-items:flex-end;text-align:right;padding-right:clamp(16px,3vw,50px)}
+.dsp-corner-b{align-items:flex-start;text-align:left;padding-left:clamp(16px,3vw,50px)}
+.dsp-tag{font-size:clamp(11px,1.4vw,18px);font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+.dsp-tag-r{color:#e82020}
+.dsp-tag-b{color:#2050e8}
+.dsp-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5.5vw,92px);line-height:.92;letter-spacing:.02em;text-transform:uppercase;word-break:break-word}
+.dsp-name-r{text-shadow:0 0 80px rgba(220,40,40,.45),2px 3px 0 rgba(150,0,0,.25)}
+.dsp-name-b{text-shadow:0 0 80px rgba(40,70,230,.45),-2px 3px 0 rgba(0,0,150,.25)}
+.dsp-club{font-size:clamp(11px,1.6vw,22px);font-weight:400;letter-spacing:.12em;color:rgba(255,255,255,.4);text-transform:uppercase}
+.dsp-center{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.dsp-div-t{width:1px;height:clamp(20px,4vh,50px);background:linear-gradient(to bottom,transparent,rgba(255,255,255,.15))}
+.dsp-div-b{width:1px;height:clamp(20px,4vh,50px);background:linear-gradient(to top,transparent,rgba(255,255,255,.15))}
+.dsp-vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,6vw,100px);letter-spacing:.05em;color:rgba(255,255,255,.12);line-height:1}
+.dsp-footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.07);padding:clamp(10px,1.8vh,22px) clamp(16px,4vw,60px);background:rgba(0,0,0,.35)}
+.dsp-footer-label{font-size:clamp(10px,1.2vw,13px);font-weight:700;letter-spacing:.32em;color:rgba(255,255,255,.28);text-transform:uppercase;margin-bottom:clamp(6px,1vh,12px)}
+.dsp-footer-row{display:flex;gap:clamp(20px,4vw,60px)}
+.dsp-next-card{display:flex;flex-direction:column;gap:2px;flex:1}
+.dsp-next-num{font-size:clamp(9px,1vw,13px);font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.25);text-transform:uppercase}
+.dsp-next-line{font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,2.6vw,40px);letter-spacing:.04em}
+.dsp-next-r{color:rgba(255,100,100,.75)}
+.dsp-next-b{color:rgba(80,120,255,.75)}
+.dsp-next-vs{color:rgba(255,255,255,.2);font-size:.65em}
+.dsp-next-clubs{font-size:clamp(9px,.9vw,12px);font-weight:400;letter-spacing:.1em;color:rgba(255,255,255,.2);text-transform:uppercase}
+.dsp-next-sep{width:1px;background:rgba(255,255,255,.08);align-self:stretch}
+.dsp-fs-btn{position:fixed;bottom:14px;right:14px;z-index:100;width:36px;height:36px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.35);border-radius:4px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.dsp-fs-btn:hover{background:rgba(255,255,255,.14);color:#fff}
+
+/* ══════════════════ ADMIN ══════════════════ */
+#view-admin{min-height:100vh;background:#0b0b0b;display:none;flex-direction:column}
+#view-admin.active{display:flex}
+.adm-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 20px;background:#111;border-bottom:1px solid #1d1d1d}
+.adm-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.12em}
+.adm-header-btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.adm-link{padding:6px 12px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+.adm-link:hover{background:rgba(255,255,255,.1);color:#fff}
+.adm-back{padding:6px 12px;color:rgba(255,255,255,.35);font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.adm-back:hover{color:#fff}
+.adm-ctrl{padding:16px 20px;background:#0e0e0e;border-bottom:1px solid #1a1a1a}
+.adm-ctrl-label{font-size:11px;font-weight:700;letter-spacing:.28em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:10px}
+.adm-ctrl-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.adm-nav{padding:12px 18px;border:none;border-radius:4px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.1em;transition:background .15s,transform .08s}
+.adm-nav:active{transform:scale(.96)}
+.adm-nav:disabled{opacity:.25;cursor:not-allowed}
+.adm-nav-p{background:#261010;color:#ff7070;border:1px solid #452020}
+.adm-nav-p:hover:not(:disabled){background:#321515}
+.adm-nav-n{background:#101026;color:#7090ff;border:1px solid #20205a}
+.adm-nav-n:hover:not(:disabled){background:#151535}
+.adm-cur{flex:1;min-width:160px;background:#161616;border:1px solid #262626;border-radius:5px;padding:10px 16px;text-align:center}
+.adm-cur-num{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.1em}
+.adm-cur-names{font-size:13px;font-weight:400;color:rgba(255,255,255,.35);margin-top:2px}
+.adm-cur-prog{font-size:11px;font-weight:600;letter-spacing:.15em;color:rgba(255,255,255,.2);margin-top:3px}
+.adm-toolbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #181818}
+.adm-toolbar-label{font-size:11px;font-weight:700;letter-spacing:.25em;color:rgba(255,255,255,.28);text-transform:uppercase}
+.adm-toolbar-btns{display:flex;gap:8px}
+.tbtn{padding:7px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.45);border-radius:3px;cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.08em;transition:background .15s}
+.tbtn:hover{background:rgba(255,255,255,.09);color:#fff}
+.tbtn-add{background:#0f1f0f;border-color:#2a5a2a;color:#70c070}
+.tbtn-add:hover{background:#162516;color:#90e090}
+.adm-scroll{flex:1;overflow-y:auto;overflow-x:auto;max-height:calc(100vh - 310px)}
+.adm-tbl{width:100%;border-collapse:collapse;font-size:14px}
+.adm-tbl th{position:sticky;top:0;z-index:10;background:#141414;padding:10px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.15em;color:rgba(255,255,255,.35);text-transform:uppercase;border-bottom:1px solid #242424;white-space:nowrap}
+.th-r{color:rgba(255,100,100,.55)!important}
+.th-rc{color:rgba(255,100,100,.35)!important}
+.th-b{color:rgba(80,120,255,.55)!important}
+.th-bc{color:rgba(80,120,255,.35)!important}
+.adm-tbl td{padding:5px 8px;vertical-align:middle;border-bottom:1px solid #161616}
+.tr-active td{background:#181810!important}
+.tr-done td{opacity:.45}
+.inp{width:100%;background:#121212;border:1px solid #1e1e1e;color:#fff;padding:7px 9px;border-radius:3px;font-size:14px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:#333}
+.inp-num{width:52px;text-align:center;color:rgba(255,255,255,.6)}
+.inp-r{color:#ffaaaa}
+.inp-r:focus{border-color:rgba(220,80,80,.35)}
+.inp-b{color:#aabbff}
+.inp-b:focus{border-color:rgba(80,100,240,.35)}
+.inp-sm{font-size:13px;color:rgba(255,255,255,.55)}
+.td-act{display:flex;align-items:center;gap:6px}
+.btn-setcur{background:rgba(255,220,0,.08);border:1px solid rgba(255,220,0,.2);color:rgba(255,220,0,.6);border-radius:3px;padding:4px 9px;cursor:pointer;font-size:13px;transition:background .15s}
+.btn-setcur:hover{background:rgba(255,220,0,.15);color:rgba(255,220,0,.9)}
+.cur-ind{font-size:10px;font-weight:700;letter-spacing:.12em;color:#d0c040;background:rgba(200,180,0,.1);border:1px solid rgba(200,180,0,.2);padding:3px 7px;border-radius:2px;white-space:nowrap}
+.btn-del{background:none;border:none;color:rgba(255,60,60,.25);cursor:pointer;font-size:14px;padding:4px 7px;transition:color .15s}
+.btn-del:hover{color:rgba(255,60,60,.8)}
+.adm-savebar{padding:14px 20px;background:#0d0d0d;border-top:1px solid #1a1a1a;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;bottom:0}
+.btn-save{padding:13px 28px;background:#0f1f0f;border:1px solid #3a6a3a;color:#80e080;border-radius:4px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.12em;transition:background .15s,transform .08s}
+.btn-save:active{transform:scale(.97)}
+.btn-save:disabled{opacity:.6;cursor:default}
+.btn-save.ok{background:#0a180a;border-color:#40a040;color:#88ff88}
+.btn-save.saving{background:#141414;border-color:#333;color:rgba(255,255,255,.4)}
+.save-hint{font-size:12px;color:rgba(255,255,255,.2);letter-spacing:.05em}
+
+/* ══════════════════ REMOTE ══════════════════ */
+#view-remote{min-height:100vh;background:#0a0a0a;display:none;flex-direction:column;max-width:500px;margin:0 auto}
+#view-remote.active{display:flex}
+.rem-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#111;border-bottom:1px solid #1d1d1d;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.1em}
+.rem-back{font-size:13px;color:rgba(255,255,255,.3);letter-spacing:.1em;cursor:pointer}
+.rem-back:hover{color:#fff}
+.rem-cur{padding:22px 20px;background:#0e0e0e;border-bottom:1px solid #181818;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;min-height:96px;justify-content:center}
+.rem-cur-label{font-size:11px;font-weight:700;letter-spacing:.28em;color:rgba(255,255,255,.3);text-transform:uppercase}
+.rem-match{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.06em}
+.rem-r{color:#ff5555}
+.rem-b{color:#5575ff}
+.rem-vs{color:rgba(255,255,255,.2);font-size:.7em}
+.rem-clubs{display:flex;justify-content:space-between;width:100%;padding:0 4px;font-size:11px;color:rgba(255,255,255,.25);letter-spacing:.08em}
+.rem-nodata{font-size:13px;color:rgba(255,255,255,.2);letter-spacing:.08em}
+.rem-btns{display:flex;gap:12px;padding:16px 20px}
+.rem-btn{flex:1;padding:26px 12px;border:none;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .1s,opacity .15s;user-select:none}
+.rem-btn:active{transform:scale(.94)!important}
+.rem-btn:disabled{opacity:.2;cursor:not-allowed}
+.rem-btn-arrow{font-size:28px;line-height:1}
+.rem-btn-label{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.1em;line-height:1}
+.rem-btn-p{background:#221010;color:#ff6060;border:2px solid #3a1c1c}
+.rem-btn-p:hover:not(:disabled){background:#2e1414}
+.rem-btn-n{background:#10102a;color:#6080ff;border:2px solid #1c1c40}
+.rem-btn-n:hover:not(:disabled){background:#141430}
+.rem-list{flex:1;padding:0 20px 50px;overflow-y:auto}
+.rem-list-hdr{font-size:11px;font-weight:700;letter-spacing:.3em;color:rgba(255,255,255,.22);text-transform:uppercase;padding:13px 0 9px;border-bottom:1px solid #181818;margin-bottom:3px}
+.rem-row{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;border:1px solid transparent;transition:background .1s}
+.rem-row:hover{background:#141414}
+.rem-row.done{opacity:.35}
+.rem-row.cur{background:#161610!important;border-color:#303010}
+.rem-row-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:rgba(255,255,255,.22);min-width:26px}
+.rem-row-match{flex:1;font-size:15px}
+.rem-vs-sm{color:rgba(255,255,255,.22);font-size:.85em}
+.rem-row-badge{font-size:10px;font-weight:700;letter-spacing:.14em;color:#d0c040;background:rgba(180,160,0,.1);border:1px solid rgba(180,160,0,.22);padding:3px 7px;border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══════════════════════════════════════════════════════════ -->
+<div id="view-home" class="view active">
+  <div class="home-glow-r"></div>
+  <div class="home-glow-b"></div>
+  <div class="home-inner">
+    <div class="home-gloves">🥊</div>
+    <h1 class="home-title">FIGHT NIGHT</h1>
+    <p class="home-sub">Sistema de Control para Exhibiciones de Boxeo</p>
+    <div class="home-cards">
+      <div class="hcard hcard-display" onclick="navigate('display')">
+        <span class="hcard-icon">📺</span>
+        <span class="hcard-name">PANTALLA</span>
+        <span class="hcard-desc">Display para TV / proyector en pantalla completa</span>
+      </div>
+      <div class="hcard hcard-admin" onclick="navigate('admin')">
+        <span class="hcard-icon">⚙️</span>
+        <span class="hcard-name">ADMINISTRADOR</span>
+        <span class="hcard-desc">Cargar y gestionar todas las peleas del evento</span>
+      </div>
+      <div class="hcard hcard-remote" onclick="navigate('remote')">
+        <span class="hcard-icon">📱</span>
+        <span class="hcard-name">CONTROL REMOTO</span>
+        <span class="hcard-desc">Avanzar / retroceder peleas desde el celular</span>
+      </div>
+    </div>
+    <p class="home-tip">
+      Usá los botones de arriba o agregá <code>#display</code>, <code>#admin</code> o <code>#remote</code> al final de la URL para acceder directamente
+    </p>
+  </div>
+</div>
+
+<!-- ══ DISPLAY ════════════════════════════════════════════════════════ -->
+<div id="view-display" class="view">
+  <div class="dsp-bg-r"></div>
+  <div class="dsp-bg-b"></div>
+  <div id="dsp-idle" class="dsp-idle">
+    <span class="dsp-idle-icon">🥊</span>
+    <span class="dsp-idle-t">FIGHT NIGHT</span>
+    <span class="dsp-idle-s" id="dsp-idle-msg">Cargando...</span>
+  </div>
+  <div id="dsp-content" style="display:none;flex-direction:column;height:100%">
+    <div class="dsp-badge">
+      PELEA <span id="dsp-num" class="dsp-badge-n"></span><span id="dsp-of" class="dsp-badge-of"></span>
+    </div>
+    <div class="dsp-main">
+      <div class="dsp-corner dsp-corner-r">
+        <div class="dsp-tag dsp-tag-r">● ESQUINA ROJA</div>
+        <div class="dsp-name dsp-name-r" id="dsp-red-name"></div>
+        <div class="dsp-club" id="dsp-red-club"></div>
+      </div>
+      <div class="dsp-center">
+        <div class="dsp-div-t"></div>
+        <div class="dsp-vs">VS</div>
+        <div class="dsp-div-b"></div>
+      </div>
+      <div class="dsp-corner dsp-corner-b">
+        <div class="dsp-tag dsp-tag-b">● ESQUINA AZUL</div>
+        <div class="dsp-name dsp-name-b" id="dsp-blue-name"></div>
+        <div class="dsp-club" id="dsp-blue-club"></div>
+      </div>
+    </div>
+    <div id="dsp-footer" class="dsp-footer" style="display:none">
+      <div class="dsp-footer-label">A CONTINUACIÓN</div>
+      <div class="dsp-footer-row" id="dsp-next-row"></div>
+    </div>
+  </div>
+  <button class="dsp-fs-btn" onclick="toggleFS()">⛶</button>
+</div>
+
+<!-- ══ ADMIN ══════════════════════════════════════════════════════════ -->
+<div id="view-admin" class="view">
+  <div class="adm-header">
+    <span class="adm-title">🥊 FIGHT NIGHT — ADMINISTRADOR</span>
+    <div class="adm-header-btns">
+      <span class="adm-link" onclick="navigate('display')">📺 Pantalla</span>
+      <span class="adm-link" onclick="navigate('remote')">📱 Remoto</span>
+      <span class="adm-back" onclick="navigate('home')">← Inicio</span>
+    </div>
+  </div>
+  <div class="adm-ctrl">
+    <div class="adm-ctrl-label">PELEA EN CURSO</div>
+    <div class="adm-ctrl-row">
+      <button class="adm-nav adm-nav-p" id="btn-prev" onclick="navAdm(-1)">◀ ANTERIOR</button>
+      <div class="adm-cur">
+        <div class="adm-cur-num" id="adm-cur-num">—</div>
+        <div class="adm-cur-names" id="adm-cur-names">Sin selección</div>
+        <div class="adm-cur-prog" id="adm-cur-prog"></div>
+      </div>
+      <button class="adm-nav adm-nav-n" id="btn-next" onclick="navAdm(1)">SIGUIENTE ▶</button>
+    </div>
+  </div>
+  <div class="adm-toolbar">
+    <span class="adm-toolbar-label" id="adm-count-label">LISTA DE PELEAS</span>
+    <div class="adm-toolbar-btns">
+      <button class="tbtn" onclick="renumber()">Renumerar</button>
+      <button class="tbtn tbtn-add" onclick="addRow()">+ Agregar pelea</button>
+    </div>
+  </div>
+  <div class="adm-scroll">
+    <table class="adm-tbl">
+      <thead>
+        <tr>
+          <th style="width:64px">#</th>
+          <th class="th-r">Peleador — Esquina Roja</th>
+          <th class="th-rc">Club / Entrenador</th>
+          <th class="th-b">Peleador — Esquina Azul</th>
+          <th class="th-bc">Club / Entrenador</th>
+          <th style="width:110px">Acción</th>
+        </tr>
+      </thead>
+      <tbody id="fights-tbody"></tbody>
+    </table>
+  </div>
+  <div class="adm-savebar">
+    <button class="btn-save" id="btn-save" onclick="saveData()">💾 GUARDAR Y PUBLICAR</button>
+    <span class="save-hint">Los cambios se publican en pantalla y control remoto al instante.</span>
+  </div>
+</div>
+
+<!-- ══ REMOTE ═════════════════════════════════════════════════════════ -->
+<div id="view-remote" class="view">
+  <div class="rem-hdr">
+    <span>🥊 CONTROL REMOTO</span>
+    <span class="rem-back" onclick="navigate('home')">Inicio</span>
+  </div>
+  <div class="rem-cur">
+    <div class="rem-cur-label" id="rem-cur-label">Sin datos</div>
+    <div id="rem-cur-body"></div>
+  </div>
+  <div class="rem-btns">
+    <button class="rem-btn rem-btn-p" id="rem-btn-prev" onclick="remNav(-1)">
+      <span class="rem-btn-arrow">◀</span>
+      <span class="rem-btn-label">ANTERIOR</span>
+    </button>
+    <button class="rem-btn rem-btn-n" id="rem-btn-next" onclick="remNav(1)">
+      <span class="rem-btn-arrow">▶</span>
+      <span class="rem-btn-label">SIGUIENTE</span>
+    </button>
+  </div>
+  <div class="rem-list">
+    <div class="rem-list-hdr">TODAS LAS PELEAS</div>
+    <div id="rem-list-body"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   STORAGE — uses localStorage as fallback when window.storage unavailable
+══════════════════════════════════════════════════════════════════════ */
+const KEY_FIGHTS = "bx:fights";
+const KEY_CUR    = "bx:cur";
+
+async function dbGet(k) {
+  try {
+    if (window.storage) {
+      const r = await window.storage.get(k, true);
+      return r?.value ?? null;
+    }
+  } catch {}
+  return localStorage.getItem(k);
+}
+
+async function dbSet(k, v) {
+  try {
+    if (window.storage) {
+      await window.storage.set(k, v, true);
+      return;
+    }
+  } catch {}
+  localStorage.setItem(k, v);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   APP STATE
+══════════════════════════════════════════════════════════════════════ */
+let fights = [];
+let curIdx  = 0;
+let currentView = "home";
+let pollTimer = null;
+
+function mkFight(n) {
+  return { n, redName:"", redClub:"", blueName:"", blueClub:"" };
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ROUTING
+══════════════════════════════════════════════════════════════════════ */
+function navigate(view) {
+  history.pushState(null, "", "#" + view);
+  showView(view);
+}
+
+function showView(view) {
+  currentView = view;
+  document.querySelectorAll(".view").forEach(el => el.classList.remove("active"));
+  const el = document.getElementById("view-" + view);
+  if (el) el.classList.add("active");
+
+  clearInterval(pollTimer);
+
+  if (view === "admin") {
+    loadAdmin();
+  } else if (view === "display") {
+    renderDisplay();
+    pollTimer = setInterval(pollDisplay, 1500);
+  } else if (view === "remote") {
+    renderRemote();
+    pollTimer = setInterval(pollRemote, 1500);
+  }
+}
+
+window.addEventListener("hashchange", () => {
+  const hash = location.hash.slice(1) || "home";
+  showView(hash);
+});
+
+/* ══════════════════════════════════════════════════════════════════════
+   DISPLAY
+══════════════════════════════════════════════════════════════════════ */
+async function pollDisplay() {
+  const [fRaw, cRaw] = await Promise.all([dbGet(KEY_FIGHTS), dbGet(KEY_CUR)]);
+  if (fRaw) fights = JSON.parse(fRaw);
+  if (cRaw !== null) curIdx = parseInt(cRaw);
+  renderDisplay();
+}
+
+function renderDisplay() {
+  const fight = fights[curIdx];
+  const idle = document.getElementById("dsp-idle");
+  const content = document.getElementById("dsp-content");
+
+  if (!fight) {
+    idle.style.display = "flex";
+    content.style.display = "none";
+    const msg = document.getElementById("dsp-idle-msg");
+    if (msg) msg.textContent = fights.length === 0 ? "Esperando datos del administrador..." : "—";
+    return;
+  }
+
+  idle.style.display = "none";
+  content.style.display = "flex";
+
+  document.getElementById("dsp-num").textContent = fight.n;
+  document.getElementById("dsp-of").textContent = fights.length > 0 ? " DE " + fights.length : "";
+  document.getElementById("dsp-red-name").textContent  = fight.redName  || "—";
+  document.getElementById("dsp-red-club").textContent  = fight.redClub  || "";
+  document.getElementById("dsp-blue-name").textContent = fight.blueName || "—";
+  document.getElementById("dsp-blue-club").textContent = fight.blueClub || "";
+
+  const next1 = fights[curIdx + 1];
+  const next2 = fights[curIdx + 2];
+  const footer = document.getElementById("dsp-footer");
+  const nextRow = document.getElementById("dsp-next-row");
+
+  if (next1 || next2) {
+    footer.style.display = "block";
+    nextRow.innerHTML = "";
+    if (next1) nextRow.appendChild(makeNextCard(next1));
+    if (next1 && next2) {
+      const sep = document.createElement("div");
+      sep.className = "dsp-next-sep";
+      nextRow.appendChild(sep);
+    }
+    if (next2) nextRow.appendChild(makeNextCard(next2));
+  } else {
+    footer.style.display = "none";
+  }
+}
+
+function makeNextCard(f) {
+  const div = document.createElement("div");
+  div.className = "dsp-next-card";
+  div.innerHTML = `
+    <span class="dsp-next-num">PELEA ${f.n}</span>
+    <span class="dsp-next-line">
+      <span class="dsp-next-r">${esc(f.redName)}</span>
+      <span class="dsp-next-vs"> vs </span>
+      <span class="dsp-next-b">${esc(f.blueName)}</span>
+    </span>
+    ${(f.redClub||f.blueClub)?`<span class="dsp-next-clubs">${esc(f.redClub)} — ${esc(f.blueClub)}</span>`:""}
+  `;
+  return div;
+}
+
+function toggleFS() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ADMIN
+══════════════════════════════════════════════════════════════════════ */
+async function loadAdmin() {
+  const [fRaw, cRaw] = await Promise.all([dbGet(KEY_FIGHTS), dbGet(KEY_CUR)]);
+  if (fRaw) fights = JSON.parse(fRaw);
+  if (cRaw !== null) curIdx = parseInt(cRaw);
+  if (fights.length === 0) fights = [mkFight(1)];
+  renderAdminTable();
+  updateAdminNav();
+}
+
+function renderAdminTable() {
+  const tbody = document.getElementById("fights-tbody");
+  tbody.innerHTML = "";
+  fights.forEach((f, i) => {
+    const tr = document.createElement("tr");
+    if (i === curIdx) tr.classList.add("tr-active");
+    if (i < curIdx)   tr.classList.add("tr-done");
+    tr.innerHTML = `
+      <td><input class="inp inp-num" type="number" value="${f.n}" onchange="updFight(${i},'n',parseInt(this.value)||${i+1})"></td>
+      <td><input class="inp inp-r" placeholder="Nombre rojo..." value="${esc(f.redName)}" oninput="updFight(${i},'redName',this.value)"></td>
+      <td><input class="inp inp-sm" placeholder="Club..." value="${esc(f.redClub)}" oninput="updFight(${i},'redClub',this.value)"></td>
+      <td><input class="inp inp-b" placeholder="Nombre azul..." value="${esc(f.blueName)}" oninput="updFight(${i},'blueName',this.value)"></td>
+      <td><input class="inp inp-sm" placeholder="Club..." value="${esc(f.blueClub)}" oninput="updFight(${i},'blueClub',this.value)"></td>
+      <td class="td-act">
+        ${i !== curIdx
+          ? `<button class="btn-setcur" onclick="setActive(${i})" title="Marcar como actual">▶</button>`
+          : `<span class="cur-ind">EN CURSO</span>`}
+        <button class="btn-del" onclick="delRow(${i})">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("adm-count-label").textContent = `LISTA DE PELEAS (${fights.length})`;
+}
+
+function updFight(i, field, val) {
+  fights[i][field] = val;
+  updateAdminNav();
+}
+
+function updateAdminNav() {
+  const f = fights[curIdx];
+  document.getElementById("adm-cur-num").textContent   = f ? `PELEA ${f.n}` : "—";
+  document.getElementById("adm-cur-names").textContent = f ? `${f.redName||"?"} vs ${f.blueName||"?"}` : "Sin selección";
+  document.getElementById("adm-cur-prog").textContent  = `${curIdx + 1} / ${fights.length}`;
+  document.getElementById("btn-prev").disabled = curIdx <= 0;
+  document.getElementById("btn-next").disabled = curIdx >= fights.length - 1;
+}
+
+async function navAdm(dir) {
+  curIdx = Math.max(0, Math.min(fights.length - 1, curIdx + dir));
+  await dbSet(KEY_CUR, String(curIdx));
+  renderAdminTable();
+  updateAdminNav();
+}
+
+async function setActive(i) {
+  curIdx = i;
+  await dbSet(KEY_CUR, String(i));
+  renderAdminTable();
+  updateAdminNav();
+}
+
+function addRow() {
+  const lastN = fights.length > 0 ? fights[fights.length - 1].n + 1 : 1;
+  fights.push(mkFight(lastN));
+  renderAdminTable();
+  updateAdminNav();
+  // Scroll to bottom
+  const scroll = document.querySelector(".adm-scroll");
+  setTimeout(() => { scroll.scrollTop = scroll.scrollHeight; }, 50);
+}
+
+function delRow(i) {
+  fights.splice(i, 1);
+  if (fights.length === 0) fights = [mkFight(1)];
+  if (curIdx >= fights.length) curIdx = fights.length - 1;
+  renderAdminTable();
+  updateAdminNav();
+}
+
+function renumber() {
+  fights = fights.map((f, i) => ({ ...f, n: i + 1 }));
+  renderAdminTable();
+}
+
+async function saveData() {
+  const btn = document.getElementById("btn-save");
+  btn.textContent = "GUARDANDO...";
+  btn.classList.add("saving");
+  btn.disabled = true;
+  await Promise.all([dbSet(KEY_FIGHTS, JSON.stringify(fights)), dbSet(KEY_CUR, String(curIdx))]);
+  btn.textContent = "✓ GUARDADO Y PUBLICADO";
+  btn.classList.remove("saving");
+  btn.classList.add("ok");
+  setTimeout(() => {
+    btn.textContent = "💾 GUARDAR Y PUBLICAR";
+    btn.classList.remove("ok");
+    btn.disabled = false;
+  }, 2500);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   REMOTE
+══════════════════════════════════════════════════════════════════════ */
+async function pollRemote() {
+  const [fRaw, cRaw] = await Promise.all([dbGet(KEY_FIGHTS), dbGet(KEY_CUR)]);
+  if (fRaw) fights = JSON.parse(fRaw);
+  if (cRaw !== null) curIdx = parseInt(cRaw);
+  renderRemote();
+}
+
+function renderRemote() {
+  const fight = fights[curIdx];
+  document.getElementById("rem-cur-label").textContent = fight ? `PELEA ${fight.n} DE ${fights.length}` : "Sin datos";
+  const body = document.getElementById("rem-cur-body");
+  if (fight) {
+    body.innerHTML = `
+      <div class="rem-match">
+        <span class="rem-r">${esc(fight.redName||"—")}</span>
+        <span class="rem-vs"> VS </span>
+        <span class="rem-b">${esc(fight.blueName||"—")}</span>
+      </div>
+      <div class="rem-clubs">
+        <span>${esc(fight.redClub)}</span>
+        <span>${esc(fight.blueClub)}</span>
+      </div>
+    `;
+  } else {
+    body.innerHTML = `<div class="rem-nodata">Cargá las peleas desde el administrador</div>`;
+  }
+  document.getElementById("rem-btn-prev").disabled = curIdx <= 0;
+  document.getElementById("rem-btn-next").disabled = curIdx >= fights.length - 1;
+  // List
+  const listBody = document.getElementById("rem-list-body");
+  listBody.innerHTML = "";
+  fights.forEach((f, i) => {
+    const row = document.createElement("div");
+    row.className = "rem-row" + (i === curIdx ? " cur" : "") + (i < curIdx ? " done" : "");
+    row.innerHTML = `
+      <span class="rem-row-num">${f.n}</span>
+      <span class="rem-row-match">
+        <span class="rem-r">${esc(f.redName||"?")}</span>
+        <span class="rem-vs-sm"> vs </span>
+        <span class="rem-b">${esc(f.blueName||"?")}</span>
+      </span>
+      ${i === curIdx ? '<span class="rem-row-badge">EN CURSO</span>' : ""}
+    `;
+    row.addEventListener("click", () => remGoTo(i));
+    listBody.appendChild(row);
+  });
+  // Auto-scroll current into view
+  setTimeout(() => {
+    const curRow = listBody.querySelectorAll(".rem-row")[curIdx];
+    if (curRow) curRow.scrollIntoView({ block:"nearest", behavior:"smooth" });
+  }, 50);
+}
+
+async function remNav(dir) {
+  const next = Math.max(0, Math.min(fights.length - 1, curIdx + dir));
+  curIdx = next;
+  await dbSet(KEY_CUR, String(next));
+  renderRemote();
+}
+
+async function remGoTo(i) {
+  curIdx = i;
+  await dbSet(KEY_CUR, String(i));
+  renderRemote();
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════════════════════════════ */
+function esc(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════════════════ */
+(function init() {
+  const hash = location.hash.slice(1) || "home";
+  showView(hash);
+})();
+</script>
+</body>
+</html>
