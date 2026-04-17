@@ -72,7 +72,7 @@ input,button{font-family:inherit}
 .dsp-badge-logo-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
 .dsp-badge-logo-img{height:clamp(36px,5vh,72px);max-width:min(380px,80vw);object-fit:contain;object-position:center;filter:invert(1);opacity:.88;display:block;margin:0 auto}
 .dsp-badge-num-ring{margin-top:clamp(-6px,-1vh,-10px);padding:clamp(4px,.6vh,7px) clamp(16px,2.5vw,36px) clamp(2px,.3vh,4px);display:flex;justify-content:center}
-.dsp-badge-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,7vw,120px);letter-spacing:.12em;line-height:.95;display:block;background:linear-gradient(175deg,#fff 40%,rgba(200,200,200,.35) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 6px 18px rgba(255,255,255,.18)) drop-shadow(2px 4px 0 rgba(0,0,0,.55))}
+.dsp-badge-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,7vw,120px);letter-spacing:.12em;line-height:.95;display:block;background:linear-gradient(175deg,#fff 40%,rgba(200,200,200,.35) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 6px 18px rgba(255,255,255,.18)) drop-shadow(2px 4px 0 rgba(0,0,0,.55));margin-right:-.12em}
 .dsp-badge-total{font-family:'Barlow Condensed',sans-serif;font-size:clamp(11px,1.4vw,16px);font-weight:600;letter-spacing:.3em;color:rgba(232,224,212,.42);white-space:nowrap;text-transform:uppercase;margin-top:clamp(1px,.2vh,4px);text-align:center;display:block;width:100%}
 
 /* Main matchup */
@@ -274,6 +274,9 @@ tr.drag-over td:first-child{border-top:2px solid rgba(255,220,0,.6)!important}
 .lista-cur-badge{font-family:'Barlow Condensed',sans-serif;font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:.18em;color:rgba(200,180,0,.8);background:rgba(180,160,0,.1);border:1px solid rgba(180,160,0,.22);padding:2px 8px;border-radius:2px;flex-shrink:0;align-self:center}
 .lista-back{position:fixed;top:clamp(10px,2vh,18px);right:clamp(12px,2vw,22px);z-index:100;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.15em;color:rgba(232,224,212,.3);text-transform:uppercase;cursor:pointer;padding:6px 10px;border:1px solid rgba(232,224,212,.1);border-radius:2px;background:rgba(0,0,0,.35);-webkit-tap-highlight-color:transparent}
 .lista-back:hover{color:rgba(232,224,212,.7)}
+
+/* Two-line name mode — spans inherit shadow and alignment from parent */
+.dsp-name-r span, .dsp-name-b span { display:block; text-align:inherit; }
 </style>
 </head>
 <body>
@@ -637,9 +640,9 @@ function renderDisplay() {
   idle.style.display = "none"; content.style.display = "flex";
   document.getElementById("dsp-num").textContent      = fight.n;
   document.getElementById("dsp-of").textContent       = fights.length>1 ? `de ${fights.length}` : "";
-  document.getElementById("dsp-red-name").textContent  = fight.redName  || "—";
+  (function(){const e=document.getElementById("dsp-red-name"); const v=fight.redName  || "—"; e.dataset.rawName=v; e.textContent=v;})()
   document.getElementById("dsp-red-club").textContent  = fight.redClub  || "";
-  document.getElementById("dsp-blue-name").textContent = fight.blueName || "—";
+  (function(){const e=document.getElementById("dsp-blue-name"); const v=fight.blueName || "—"; e.dataset.rawName=v; e.textContent=v;})()
   document.getElementById("dsp-blue-club").textContent = fight.blueClub || "";
   requestAnimationFrame(fitNames);
   const n1=fights[curIdx+1], n2=fights[curIdx+2];
@@ -911,7 +914,6 @@ function fitNames() {
   const bEl = document.getElementById("dsp-blue-name");
   if (!rEl || !bEl) return;
 
-  // Available width per corner = half of dsp-main minus VS column minus padding
   const main = document.querySelector(".dsp-main");
   if (!main) return;
   const mainW = main.offsetWidth;
@@ -919,38 +921,88 @@ function fitNames() {
   const vsW   = vsCol ? vsCol.offsetWidth : 80;
   const padR  = parseFloat(getComputedStyle(document.querySelector(".dsp-corner-r") || rEl).paddingRight) || 0;
   const padL  = parseFloat(getComputedStyle(document.querySelector(".dsp-corner-b") || bEl).paddingLeft)  || 0;
-  const availW = (mainW - vsW) / 2 * 0.96; // 96% = breathing margin
+  const availW = (mainW - vsW) / 2 * 0.96;
 
-  const canvas  = document.createElement("canvas");
-  const ctx     = canvas.getContext("2d");
+  const canvas = document.createElement("canvas");
+  const ctx    = canvas.getContext("2d");
 
-  function measureAt(text, size) {
+  function measure(text, size) {
     ctx.font = `${size}px 'Bebas Neue', sans-serif`;
-    return ctx.measureText(text).width;
+    return ctx.measureText(text.toUpperCase()).width;
   }
 
-  function fitText(text, availableW) {
+  function fitSingle(text, w, maxSz) {
     if (!text || text === "—") return 80;
-    let lo = 20, hi = 300, best = lo;
-    for (let i=0;i<20;i++) {
-      const mid = (lo+hi)/2;
-      if (measureAt(text.toUpperCase(), mid) <= availableW) { best=mid; lo=mid; }
-      else hi=mid;
+    let lo = 20, hi = maxSz || 320, best = lo;
+    for (let i = 0; i < 22; i++) {
+      const mid = (lo + hi) / 2;
+      if (measure(text, mid) <= w) { best = mid; lo = mid; } else hi = mid;
     }
     return best;
   }
 
-  const rText = (rEl.textContent||"").trim();
-  const bText = (bEl.textContent||"").trim();
-  const rSize = fitText(rText, availW - padR);
-  const bSize = fitText(bText, availW - padL);
-  const size  = Math.min(rSize, bSize);
+  // Minimum px before we try two-line layout
+  const TWO_LINE_THRESHOLD = 52;
 
-  rEl.style.fontSize = size + "px";
-  bEl.style.fontSize = size + "px";
+  function applyName(el, rawText, avail) {
+    const words = rawText.trim().split(/\s+/);
+    let nameSize;
 
-  // Scale club text proportionally to name (40% of name size, min 18px)
-  const clubSize = Math.max(18, Math.round(size * 0.40));
+    if (words.length >= 2) {
+      const single = fitSingle(rawText, avail);
+      if (single < TWO_LINE_THRESHOLD) {
+        // ── TWO-LINE MODE ──────────────────────────────────────────
+        // Last word = surname (bigger line), rest = first name (smaller)
+        const surname   = words[words.length - 1];
+        const firstname = words.slice(0, -1).join(" ");
+        const surnameSize   = fitSingle(surname, avail);
+        const firstnameSize = Math.min(fitSingle(firstname, avail), Math.round(surnameSize * 0.68));
+        nameSize = surnameSize;
+        el.style.fontSize = "";  // clear single-line size
+        el.innerHTML =
+          `<span style="font-size:${Math.round(firstnameSize)}px;display:block;line-height:1;opacity:.82">${firstname.toUpperCase()}</span>` +
+          `<span style="font-size:${Math.round(surnameSize)}px;display:block;line-height:.88">${surname.toUpperCase()}</span>`;
+        return nameSize;
+      }
+    }
+
+    // ── SINGLE-LINE MODE ──────────────────────────────────────────
+    nameSize = fitSingle(rawText, avail);
+    // Clear any two-line innerHTML and restore plain text
+    if (el.children.length > 0) el.innerHTML = "";
+    el.textContent = rawText.toUpperCase();
+    el.style.fontSize = nameSize + "px";
+    return nameSize;
+  }
+
+  const rText = (rEl.dataset.rawName || rEl.textContent || "").trim();
+  const bText = (bEl.dataset.rawName || bEl.textContent || "").trim();
+
+  // Pre-calc single sizes to match both corners
+  const rSingle = fitSingle(rText, availW - padR);
+  const bSingle = fitSingle(bText, availW - padL);
+  const bothSingle = Math.min(rSingle, bSingle);
+
+  // Decide mode per name
+  const rNeedsTwo = rText.split(/\s+/).length >= 2 && rSingle < TWO_LINE_THRESHOLD;
+  const bNeedsTwo = bText.split(/\s+/).length >= 2 && bSingle < TWO_LINE_THRESHOLD;
+
+  // If both are single-line, keep them the same size (original behaviour)
+  if (!rNeedsTwo && !bNeedsTwo) {
+    applyName(rEl, rText, availW - padR);
+    applyName(bEl, bText, availW - padL);
+    // Force same size
+    rEl.style.fontSize = bothSingle + "px";
+    bEl.style.fontSize = bothSingle + "px";
+  } else {
+    // Mixed or both two-line — apply independently
+    applyName(rEl, rText, availW - padR);
+    applyName(bEl, bText, availW - padL);
+  }
+
+  // Scale club text (40% of dominant name size, min 18px)
+  const dominantSize = Math.max(rSingle, bSingle);
+  const clubSize = Math.max(18, Math.round(dominantSize * 0.40));
   const rClub = document.getElementById("dsp-red-club");
   const bClub = document.getElementById("dsp-blue-club");
   if (rClub) rClub.style.fontSize = clubSize + "px";
