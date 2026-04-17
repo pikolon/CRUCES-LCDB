@@ -70,10 +70,10 @@ input,button{font-family:inherit}
 /* Badge — just the number */
 .dsp-badge-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:clamp(10px,1.8vh,22px) 0 clamp(14px,2.8vh,32px)}
 .dsp-badge-logo-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
-.dsp-badge-logo-img{height:clamp(36px,5vh,72px);object-fit:contain;filter:invert(1);opacity:.88;display:block}
-.dsp-badge-num-ring{margin-top:clamp(-6px,-1vh,-10px);padding:clamp(4px,.6vh,7px) clamp(20px,3vw,42px) clamp(2px,.3vh,4px)}
-.dsp-badge-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,7vw,120px);letter-spacing:.12em;line-height:.95;display:block;background:linear-gradient(175deg,#fff 40%,rgba(200,200,200,.35) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 6px 18px rgba(255,255,255,.18)) drop-shadow(2px 4px 0 rgba(0,0,0,.55));transform:rotate(-0.3deg)}
-.dsp-badge-total{font-family:'Barlow Condensed',sans-serif;font-size:clamp(10px,1.2vw,14px);font-weight:600;letter-spacing:.3em;color:rgba(232,224,212,.22);white-space:nowrap;text-transform:uppercase;margin-top:clamp(4px,.8vh,10px)}
+.dsp-badge-logo-img{height:clamp(36px,5vh,72px);max-width:min(380px,80vw);object-fit:contain;object-position:center;filter:invert(1);opacity:.88;display:block;margin:0 auto}
+.dsp-badge-num-ring{margin-top:clamp(-6px,-1vh,-10px);padding:clamp(4px,.6vh,7px) clamp(16px,2.5vw,36px) clamp(2px,.3vh,4px);display:flex;justify-content:center}
+.dsp-badge-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,7vw,120px);letter-spacing:.12em;line-height:.95;display:block;background:linear-gradient(175deg,#fff 40%,rgba(200,200,200,.35) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 6px 18px rgba(255,255,255,.18)) drop-shadow(2px 4px 0 rgba(0,0,0,.55))}
+.dsp-badge-total{font-family:'Barlow Condensed',sans-serif;font-size:clamp(11px,1.4vw,16px);font-weight:600;letter-spacing:.3em;color:rgba(232,224,212,.42);white-space:nowrap;text-transform:uppercase;margin-top:clamp(1px,.2vh,4px);text-align:center;display:block;width:100%}
 
 /* Main matchup */
 .dsp-main{position:relative;z-index:1;display:flex;flex:1;align-items:center;justify-content:center;padding:0 clamp(10px,2vw,28px)}
@@ -90,7 +90,7 @@ input,button{font-family:inherit}
 .dsp-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,9.5vw,180px);line-height:.86;letter-spacing:.01em;text-transform:uppercase;word-break:break-word;overflow-wrap:anywhere;color:#fff}
 .dsp-name-r{text-shadow:0 0 55px rgba(230,40,40,.6),0 0 110px rgba(200,20,20,.25),3px 4px 0 rgba(100,0,0,.35)}
 .dsp-name-b{text-shadow:0 0 55px rgba(40,80,240,.6),0 0 110px rgba(20,50,200,.25),-3px 4px 0 rgba(0,0,100,.35)}
-.dsp-club{font-size:clamp(95px,4.2vw,150px);font-weight:400;letter-spacing:.12em;color:rgba(255,255,255,.4);text-transform:uppercase}
+.dsp-club{font-size:clamp(24px,4.2vw,80px);font-weight:400;letter-spacing:.12em;color:rgba(255,255,255,.4);text-transform:uppercase}
 
 .dsp-center{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .dsp-div-t{width:1px;height:clamp(20px,4vh,50px);background:linear-gradient(to bottom,transparent,rgba(255,255,255,.15))}
@@ -948,6 +948,13 @@ function fitNames() {
 
   rEl.style.fontSize = size + "px";
   bEl.style.fontSize = size + "px";
+
+  // Scale club text proportionally to name (40% of name size, min 18px)
+  const clubSize = Math.max(18, Math.round(size * 0.40));
+  const rClub = document.getElementById("dsp-red-club");
+  const bClub = document.getElementById("dsp-blue-club");
+  if (rClub) rClub.style.fontSize = clubSize + "px";
+  if (bClub) bClub.style.fontSize = clubSize + "px";
 }
 
 function startFitObserver() {
