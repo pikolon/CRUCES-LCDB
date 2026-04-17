@@ -256,32 +256,23 @@ tr.drag-over td:first-child{border-top:2px solid rgba(255,220,0,.6)!important}
 .lista-hdr-logo{height:clamp(30px,4vh,56px);object-fit:contain;filter:invert(1);opacity:.75}
 .lista-hdr-sub{font-family:'Barlow Condensed',sans-serif;font-size:clamp(10px,1.2vw,13px);font-weight:600;letter-spacing:.3em;color:rgba(232,224,212,.25);text-transform:uppercase;margin-top:clamp(4px,.8vh,10px)}
 .lista-scroll{position:relative;z-index:1;flex:1;overflow-y:auto;padding:clamp(10px,2vh,24px) clamp(16px,4vw,60px)}
-.lista-row{display:flex;align-items:center;gap:clamp(10px,2vw,28px);padding:clamp(8px,1.4vh,18px) 0;border-bottom:1px solid rgba(232,224,212,.05);transition:opacity .4s,font-size .4s}
-.lista-row{transition:opacity .4s,transform .4s,font-size .4s}
-.lista-row.past{opacity:.18}
-.lista-row.adj{opacity:.65}
+.lista-row{display:flex;align-items:baseline;gap:clamp(10px,2vw,28px);padding:clamp(5px,1vh,12px) 0;border-bottom:1px solid rgba(232,224,212,.05);transition:opacity .3s}
+.lista-row.past{opacity:.2}
 .lista-row.cur{opacity:1}
-.lista-row.future{opacity:.45}
+.lista-row.future{opacity:.55}
 .lista-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,2.2vw,32px);letter-spacing:.1em;color:rgba(232,224,212,.3);min-width:clamp(28px,3vw,52px);flex-shrink:0}
 .lista-row.cur .lista-num{color:rgba(232,224,212,.7)}
 .lista-matchup{flex:1;display:flex;align-items:baseline;gap:clamp(6px,1vw,14px);flex-wrap:wrap}
-.lista-name-r{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,3vw,52px);letter-spacing:.02em;color:rgba(230,90,90,.8);line-height:1;transition:font-size .4s}
-.lista-name-b{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,3vw,52px);letter-spacing:.02em;color:rgba(80,110,240,.8);line-height:1;transition:font-size .4s}
-.lista-vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(14px,2vw,36px);color:rgba(232,224,212,.18);line-height:1;transition:font-size .4s}
-.lista-row.adj .lista-name-r{font-size:clamp(27px,4.5vw,78px)}
-.lista-row.adj .lista-name-b{font-size:clamp(27px,4.5vw,78px)}
-.lista-row.adj .lista-vs{font-size:clamp(21px,3vw,54px)}
-.lista-row.adj .lista-num{font-size:clamp(24px,3.3vw,48px)}
-.lista-row.cur .lista-name-r{font-size:clamp(36px,6vw,104px);color:rgba(240,110,110,.95);text-shadow:0 0 30px rgba(220,40,40,.35)}
-.lista-row.cur .lista-name-b{font-size:clamp(36px,6vw,104px);color:rgba(100,130,255,.95);text-shadow:0 0 30px rgba(40,70,220,.35)}
-.lista-row.cur .lista-vs{font-size:clamp(28px,4vw,72px)}
-.lista-row.cur .lista-clubs{color:rgba(232,224,212,.45)}
+.lista-name-r{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,3vw,52px);letter-spacing:.02em;color:rgba(230,90,90,.8);line-height:1}
+.lista-name-b{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,3vw,52px);letter-spacing:.02em;color:rgba(80,110,240,.8);line-height:1}
+.lista-vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(14px,2vw,36px);color:rgba(232,224,212,.18);line-height:1}
 .lista-clubs{font-family:'Barlow Condensed',sans-serif;font-size:clamp(10px,1.1vw,15px);letter-spacing:.1em;color:rgba(232,224,212,.25);text-transform:uppercase;white-space:nowrap;flex-shrink:0}
 /* Current row highlight */
 .lista-row.cur .lista-name-r{color:rgba(240,110,110,.95);text-shadow:0 0 30px rgba(220,40,40,.35)}
 .lista-row.cur .lista-name-b{color:rgba(100,130,255,.95);text-shadow:0 0 30px rgba(40,70,220,.35)}
 .lista-row.cur .lista-clubs{color:rgba(232,224,212,.45)}
 .lista-cur-badge{font-family:'Barlow Condensed',sans-serif;font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:.18em;color:rgba(200,180,0,.8);background:rgba(180,160,0,.1);border:1px solid rgba(180,160,0,.22);padding:2px 8px;border-radius:2px;flex-shrink:0;align-self:center}
+.lista-back{position:fixed;top:clamp(10px,2vh,18px);right:clamp(12px,2vw,22px);z-index:100;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.15em;color:rgba(232,224,212,.3);text-transform:uppercase;cursor:pointer;padding:6px 10px;border:1px solid rgba(232,224,212,.1);border-radius:2px;background:rgba(0,0,0,.35);-webkit-tap-highlight-color:transparent}
 .lista-back:hover{color:rgba(232,224,212,.7)}
 
 /* Two-line name mode — spans inherit shadow and alignment from parent */
@@ -527,6 +518,7 @@ tr.drag-over td:first-child{border-top:2px solid rgba(255,220,0,.6)!important}
   <div class="lista-scroll" id="lista-scroll">
     <!-- filled by JS -->
   </div>
+  <span class="lista-back" onclick="navigate('home')">← INICIO</span>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════════════
@@ -1051,8 +1043,7 @@ function renderLista() {
   }
   fights.forEach((f, i) => {
     const row = document.createElement("div");
-    const dist = i - curIdx;
-    const state = dist < -1 ? "past" : dist === -1 ? "adj past" : dist === 0 ? "cur" : dist === 1 ? "adj future" : "future";
+    const state = i < curIdx ? "past" : i === curIdx ? "cur" : "future";
     row.className = "lista-row " + state;
     const clubs = (f.redClub || f.blueClub)
       ? esc(f.redClub||"") + " — " + esc(f.blueClub||"")
